@@ -4,6 +4,9 @@ import "math/rand"
 
 type Deck = []Card
 
+// TODO: would be nice to have a method to sort a deck by
+// colors. This way players could have cards sorted out nicely
+
 func buildDeck() Deck {
 	cards := make(Deck, 0)
 
@@ -11,10 +14,11 @@ func buildDeck() Deck {
 	for _, c := range COLORS {
 		// add numbers 0, 1, 1, 2, 2, 3, 3, 4, 4 ...
 		for i := 0; i < 10; i++ {
-			cardOne := Card{NUMBER, i, c}
+			cardOne := Card{kind: NUMBER, number: i, color: c}
+
 			cards = append(cards, cardOne)
 			if i > 0 {
-				cardTwo := Card{NUMBER, i, c}
+				cardTwo := Card{kind: NUMBER, number: i, color: c}
 				cards = append(cards, cardTwo)
 			}
 		}
@@ -24,16 +28,18 @@ func buildDeck() Deck {
 	for _, c := range COLORS {
 		for _, t := range SPECIAL_CARDS {
 			// add drawTwo
-			card := Card{}
-			card.kind = t
-			card.color = c
+			card := Card{kind: t}
+
+			if t != WILD && t != WILD_DRAW_FOUR {
+				card.color = c
+			}
 
 			cards = append(cards, card)
 			if (t == WILD_DRAW_FOUR) || (t == WILD) {
 				continue
 			}
 
-			cards = append(cards, card)
+			cards = append(cards, Card{kind: t, color: c})
 		}
 	}
 
@@ -52,4 +58,26 @@ func shuffleDeck(d *Deck) {
 			(*d)[r], (*d)[i] = (*d)[i], (*d)[r]
 		}
 	}
+}
+
+func pop(deck *Deck) *Card {
+	d := *deck
+
+	if len(d) == 0 {
+		return nil
+	}
+
+	card, d := d[len(d)-1], d[:len(d)-1]
+	*deck = d
+	return &card
+}
+
+func peak(deck *Deck) *Card {
+	d := *deck
+
+	if len(d) == 0 {
+		return nil
+	}
+
+	return &d[len(d)-1]
 }

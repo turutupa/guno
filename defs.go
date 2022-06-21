@@ -5,12 +5,19 @@ const INIT_NUMBER_OF_CARDS = 7
 // cli
 type Cli struct{}
 
+// cli - select options
 const ADD_PLAYER = "Add new player"
 const START = "Start game"
 const USE_CARD = "Use card"
 const PEAK_OPPONENTS = "Peak opponents"
-const PEAK_PILE = "Peak top card in pile"
+const PEAK_PILE = "Peak top card in drawPile"
 const DRAW_CARD = "Draw card"
+
+// colors
+const FMT_RED = "\033[31m"
+const FMT_GREEN = "\033[32m"
+const FMT_YELLOW = "\033[33m"
+const FMT_BLUE = "\033[34m"
 
 // types of cards
 const NUMBER = "number"
@@ -35,17 +42,15 @@ const BLUE = "blue"
 
 var COLORS = [4]string{RED, YELLOW, GREEN, BLUE}
 
-// game
 type Game struct {
-	players    []Player
-	turn       int
-	cemetery   Deck // used cards
-	pile       Deck // this is the pile of cards pre-dealing to players
-	isDone     bool
-	hasStarted bool
+	players     []Player
+	turn        int
+	discardPile Deck // used cards
+	drawPile    Deck // unused cards
+	hasStarted  bool
+	winners     []Player
 }
 
-// player
 type Player struct {
 	game  Game
 	name  string
@@ -59,7 +64,6 @@ type playerActions interface {
 	shoutUNO()
 }
 
-// card
 type Card struct {
 	kind   string // this I wanted to call "type" but that is a keyword
 	number int
