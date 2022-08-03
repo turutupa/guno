@@ -1,14 +1,11 @@
-package main
+package guno
 
 import "math/rand"
 
-type Deck = []Card
+type Deck []Card
 
-// TODO: would be nice to have a method to sort a deck by
-// colors. This way players could have cards sorted out nicely
-
-func buildDeck() Deck {
-	cards := make(Deck, 0)
+func Build() Deck {
+	cards := Deck{}
 
 	// add numbered cards
 	for _, c := range COLORS {
@@ -27,7 +24,6 @@ func buildDeck() Deck {
 	// add special cards
 	for _, c := range COLORS {
 		for _, t := range SPECIAL_CARDS {
-			// add drawTwo
 			card := Card{kind: t}
 
 			if t != WILD && t != WILD_DRAW_FOUR {
@@ -47,20 +43,18 @@ func buildDeck() Deck {
 }
 
 // I'm not sure this is working the expected way
-func shuffleDeck(d *Deck) {
-	for i := 1; i < len(*d); i++ {
-		// Create a random int up to the number of cards
-		r := rand.Intn(i + 1)
-
-		// If the current card doesn't match the random
-		// int we generated then we'll switch them out
-		if i != r {
-			(*d)[r], (*d)[i] = (*d)[i], (*d)[r]
-		}
+func (deck *Deck) shuffle() {
+	d := *deck
+	for i := 1; i < len(d); i++ {
+		rand.Shuffle(len(d), func(i, j int) {
+			d[i], d[j] = d[j], d[i]
+		})
 	}
+
+	*deck = d
 }
 
-func pop(deck *Deck) *Card {
+func (deck *Deck) pop() *Card {
 	d := *deck
 
 	if len(d) == 0 {
@@ -72,7 +66,24 @@ func pop(deck *Deck) *Card {
 	return &card
 }
 
-func peak(deck *Deck) *Card {
+func (deck *Deck) push(card *Card) {
+	d := *deck
+	d = append(d, *card)
+	*deck = d
+}
+
+func shift(deck *Deck) *Card {
+	d := *deck
+
+	if len(d) == 0 {
+		return nil
+	}
+
+	card, d := d[0], d[1:]
+	return &card
+}
+
+func (deck *Deck) peak() *Card {
 	d := *deck
 
 	if len(d) == 0 {
@@ -80,4 +91,24 @@ func peak(deck *Deck) *Card {
 	}
 
 	return &d[len(d)-1]
+}
+
+func (deck *Deck) sortByColor() {
+	copy := make(Deck, 0)
+
+	for _, color := range COLORS {
+		for _, card := range *deck {
+			if card.color == color {
+				copy = append(copy, card)
+			}
+		}
+	}
+
+	for _, card := range *deck {
+		if card.color == "" {
+			copy = append(copy, card)
+		}
+	}
+
+	*deck = copy
 }
